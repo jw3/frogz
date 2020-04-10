@@ -1,0 +1,5 @@
+package fz
+
+object main {
+
+}

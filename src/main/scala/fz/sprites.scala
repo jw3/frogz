@@ -62,7 +62,7 @@ object sprites {
       val sheet: BufferedImage = Toolkit.getDefaultToolkit.createImage(
         new FilteredImageSource(
           ImageIO.read(Paths.get(sheetPath).toFile).getSource,
-          new RgbF
+          new RgbF(sc)
         )
       )
 
@@ -115,15 +115,13 @@ object sprites {
       bi
     }
 
-    private class RgbF extends RGBImageFilter {
-      // todo;; transparency colors should be in sheet config
-      private val markerRGB =
-        List((186, 254, 202), (204, 255, 204), (64, 105, 149), (32, 96, 0), (32, 64, 0))
-          .map(rgb => new Color(rgb._1, rgb._2, rgb._3))
-          .map(_.getRGB)
+    private class RgbF(config: Config) extends RGBImageFilter {
+      private val txRgb = config.as[Array[Array[Int]]]("transparency").map {
+        case Array(r, g, b) => new Color(r, g, b).getRGB
+      }
 
       def filterRGB(x: Int, y: Int, rgb: Int): Int =
-        if (markerRGB.contains(rgb | 0xFF000000)) 0x00FFFFFF & rgb
+        if (txRgb.contains(rgb | 0xFF000000)) 0x00FFFFFF & rgb
         else rgb
     }
   }
